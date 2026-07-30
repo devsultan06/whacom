@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
+    "send": "tsx src/send_invoice.ts",
     "build": "tsc",
     "start": "node dist/server.js"
   },

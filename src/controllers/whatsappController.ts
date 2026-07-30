@@ -25,6 +25,8 @@ export async function handleWebhook(req: Request, res: Response): Promise<void> 
   // Always return 200 OK immediately to Meta to acknowledge event receipt
   res.status(200).send('EVENT_RECEIVED');
 
+  console.log('[WhatsApp Webhook Payload Received]:', JSON.stringify(req.body, null, 2));
+
   const body = req.body as WhatsAppWebhookPayload;
 
   if (body.object !== 'whatsapp_business_account') {
