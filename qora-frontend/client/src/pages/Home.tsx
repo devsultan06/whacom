@@ -234,7 +234,8 @@ const communityTop = [
     handle: "@amara_studio",
     role: "Fashion Label",
     city: "Lagos",
-    image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=400&q=80",
     offset: "-22px",
     size: "106px",
     aspect: "1/1",
@@ -244,7 +245,8 @@ const communityTop = [
     handle: "@tunde_kicks",
     role: "Streetwear",
     city: "Abuja",
-    image: "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?auto=format&fit=crop&w=400&q=80",
     offset: "24px",
     size: "94px",
     aspect: "1/1",
@@ -254,7 +256,8 @@ const communityTop = [
     handle: "@kemi_designs",
     role: "Brand Kit",
     city: "Lagos",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80",
     offset: "-10px",
     size: "114px",
     aspect: "1/1.1",
@@ -264,7 +267,8 @@ const communityTop = [
     handle: "@chef_mide",
     role: "Artisan Pastry",
     city: "Lekki",
-    image: "https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?auto=format&fit=crop&w=400&q=80",
     offset: "32px",
     size: "90px",
     aspect: "1/1",
@@ -274,7 +278,8 @@ const communityTop = [
     handle: "@zara_apparel",
     role: "Bespoke Couture",
     city: "Accra",
-    image: "https://images.unsplash.com/photo-1589156280159-27698a70f29e?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1589156280159-27698a70f29e?auto=format&fit=crop&w=400&q=80",
     offset: "-28px",
     size: "110px",
     aspect: "1/1.15",
@@ -284,7 +289,8 @@ const communityTop = [
     handle: "@gadgetplug",
     role: "Audio & Tech",
     city: "Ikeja",
-    image: "https://images.unsplash.com/photo-1523824921871-d6f1a15151f1?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1523824921871-d6f1a15151f1?auto=format&fit=crop&w=400&q=80",
     offset: "14px",
     size: "98px",
     aspect: "1/1",
@@ -294,7 +300,8 @@ const communityTop = [
     handle: "@aura_glow",
     role: "Skincare",
     city: "Port Harcourt",
-    image: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=400&q=80",
     offset: "-16px",
     size: "104px",
     aspect: "1/1",
@@ -304,7 +311,8 @@ const communityTop = [
     handle: "@clayandwood",
     role: "Handmade Decor",
     city: "Lagos",
-    image: "https://images.unsplash.com/photo-1584361853901-dd1904bb7987?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1584361853901-dd1904bb7987?auto=format&fit=crop&w=400&q=80",
     offset: "26px",
     size: "92px",
     aspect: "1/1.05",
@@ -314,7 +322,8 @@ const communityTop = [
     handle: "@davidcodes",
     role: "Tech Courses",
     city: "Remote",
-    image: "https://images.unsplash.com/photo-1528892952291-009c663ce843?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1528892952291-009c663ce843?auto=format&fit=crop&w=400&q=80",
     offset: "-24px",
     size: "112px",
     aspect: "1/1",
@@ -324,7 +333,8 @@ const communityTop = [
     handle: "@nile_gems",
     role: "Artisan Jewelry",
     city: "Cairo",
-    image: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=400&q=80",
     offset: "18px",
     size: "96px",
     aspect: "1/1",
@@ -337,7 +347,8 @@ const communityBottom = [
     handle: "@eyewear_haus",
     role: "Luxury Eyewear",
     city: "Lagos",
-    image: "https://images.unsplash.com/photo-1507152832244-10d45c7eda57?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1507152832244-10d45c7eda57?auto=format&fit=crop&w=400&q=80",
     offset: "22px",
     size: "108px",
     aspect: "1/1.1",
@@ -347,7 +358,8 @@ const communityBottom = [
     handle: "@studio_lens",
     role: "Editorial Studio",
     city: "Victoria Island",
-    image: "https://images.unsplash.com/photo-1509967419530-da38b4704bc6?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1509967419530-da38b4704bc6?auto=format&fit=crop&w=400&q=80",
     offset: "-24px",
     size: "96px",
     aspect: "1/1",
@@ -357,7 +369,8 @@ const communityBottom = [
     handle: "@sole_craft",
     role: "Footwear",
     city: "Abuja",
-    image: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=400&q=80",
     offset: "16px",
     size: "114px",
     aspect: "1/1",
@@ -367,7 +380,8 @@ const communityBottom = [
     handle: "@oud_haven",
     role: "Niche Scents",
     city: "Ibadan",
-    image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80",
     offset: "-18px",
     size: "92px",
     aspect: "1/1.08",
@@ -377,7 +391,8 @@ const communityBottom = [
     handle: "@art_by_simi",
     role: "3D Creator",
     city: "Lagos",
-    image: "https://images.unsplash.com/photo-1563237023-b1e970526dcb?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1563237023-b1e970526dcb?auto=format&fit=crop&w=400&q=80",
     offset: "30px",
     size: "102px",
     aspect: "1/1",
@@ -387,7 +402,8 @@ const communityBottom = [
     handle: "@bean_culture",
     role: "Specialty Roaster",
     city: "Lekki",
-    image: "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?auto=format&fit=crop&w=400&q=80",
     offset: "-30px",
     size: "118px",
     aspect: "1/1.15",
@@ -397,7 +413,8 @@ const communityBottom = [
     handle: "@volt_station",
     role: "Smart Devices",
     city: "Ikeja",
-    image: "https://images.unsplash.com/photo-1523824921871-d6f1a15151f1?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1523824921871-d6f1a15151f1?auto=format&fit=crop&w=400&q=80",
     offset: "12px",
     size: "94px",
     aspect: "1/1",
@@ -407,7 +424,8 @@ const communityBottom = [
     handle: "@ankara_hub",
     role: "Textiles",
     city: "Lagos",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80",
     offset: "-20px",
     size: "106px",
     aspect: "1/1",
@@ -417,7 +435,8 @@ const communityBottom = [
     handle: "@motion_fit",
     role: "Activewear",
     city: "Abuja",
-    image: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=400&q=80",
     offset: "24px",
     size: "98px",
     aspect: "1/1",
@@ -427,7 +446,8 @@ const communityBottom = [
     handle: "@bloom_botanics",
     role: "Floral Studio",
     city: "Lagos",
-    image: "https://images.unsplash.com/photo-1589156280159-27698a70f29e?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1589156280159-27698a70f29e?auto=format&fit=crop&w=400&q=80",
     offset: "-14px",
     size: "110px",
     aspect: "1/1.1",
@@ -510,10 +530,7 @@ function useScrollExperience() {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             const theme = entry.target.dataset.theme;
-            document.documentElement.style.setProperty(
-              "--scroll-bg",
-              theme
-            );
+            document.documentElement.style.setProperty("--scroll-bg", theme);
             document.documentElement.setAttribute("data-active-theme", theme);
           }
         });
@@ -542,7 +559,9 @@ function useScrollExperience() {
     }
 
     // Nav elevation + light parallax, throttled to one rAF per frame
-    const parallaxEls = Array.from(document.querySelectorAll("[data-parallax]"));
+    const parallaxEls = Array.from(
+      document.querySelectorAll("[data-parallax]")
+    );
     let rafId = null;
     const apply = () => {
       rafId = null;
@@ -604,7 +623,9 @@ export default function QoraLanding() {
       pending -= 1;
       if (pending <= 0) settle();
     };
-    cards.forEach(c => c.addEventListener("animationend", onDone, { once: true }));
+    cards.forEach(c =>
+      c.addEventListener("animationend", onDone, { once: true })
+    );
 
     const io = new IntersectionObserver(
       entries => {
@@ -634,9 +655,12 @@ export default function QoraLanding() {
         <div className="nav">
           <QoraLogo />
           <nav className="nav-links">
+            <a href="/stores">Stores</a>
             <a href="#product">Product</a>
             <a href="#how">How it works</a>
             <a href="#stories">Stories</a>
+            <a href="/stores">Stores</a>
+
             <a href="/blog">Blog</a>
           </nav>
           <div className="nav-actions">
@@ -903,12 +927,20 @@ export default function QoraLanding() {
           </div>
 
           <div className="trio">
-            <div className="chip amber" data-reveal="scale" style={{ "--rd": 0 }}>
+            <div
+              className="chip amber"
+              data-reveal="scale"
+              style={{ "--rd": 0 }}
+            >
               <small>SALES THIS MONTH</small>
               <strong>₦2,840,500</strong>
               <span className="trend">▲ 18.2%</span>
             </div>
-            <div className="chip emerald" data-reveal="scale" style={{ "--rd": 1 }}>
+            <div
+              className="chip emerald"
+              data-reveal="scale"
+              style={{ "--rd": 1 }}
+            >
               <small>NET PROFIT</small>
               <strong>₦1,140,200</strong>
               <span className="trend">▲ 11.4%</span>
@@ -1228,8 +1260,8 @@ export default function QoraLanding() {
           </h2>
           <p>
             From boutique fashion labels in Lekki and sneaker curators in Abuja
-            to bakers, beauty founders, and digital educators. Join thousands
-            of merchants turning daily chats into confirmed revenue.
+            to bakers, beauty founders, and digital educators. Join thousands of
+            merchants turning daily chats into confirmed revenue.
           </p>
         </div>
 
@@ -1299,10 +1331,7 @@ export default function QoraLanding() {
             {faqs.map(([q, a], i) => {
               const isOpen = openFaq === i;
               return (
-                <div
-                  className={`faq-item ${isOpen ? "open" : ""}`}
-                  key={q}
-                >
+                <div className={`faq-item ${isOpen ? "open" : ""}`} key={q}>
                   <button
                     type="button"
                     className="faq-summary"

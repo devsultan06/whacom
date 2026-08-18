@@ -15,7 +15,14 @@ function QoraLogo() {
   );
 }
 
-const categories = ["All", "Growth", "Payments", "Inventory", "Marketing", "Stories"];
+const categories = [
+  "All",
+  "Growth",
+  "Payments",
+  "Inventory",
+  "Marketing",
+  "Stories",
+];
 
 const posts = [
   {
@@ -100,7 +107,7 @@ export default function QoraBlog() {
   const filteredPosts = useMemo(() => {
     if (selectedCat === "All") return posts;
     return posts.filter(
-      (p) => p.catLabel.toLowerCase() === selectedCat.toLowerCase()
+      p => p.catLabel.toLowerCase() === selectedCat.toLowerCase()
     );
   }, [selectedCat]);
 
@@ -123,6 +130,8 @@ export default function QoraBlog() {
             <a href="/#product">Product</a>
             <a href="/#how">How it works</a>
             <a href="/#stories">Stories</a>
+            <a href="/stores">Stores</a>
+
             <a href="/blog">Blog</a>
           </nav>
           <div className="nav-actions">
@@ -154,7 +163,7 @@ export default function QoraBlog() {
           </p>
 
           <div className="cat-pills">
-            {categories.map((c) => (
+            {categories.map(c => (
               <button
                 key={c}
                 type="button"
@@ -182,8 +191,8 @@ export default function QoraBlog() {
               <span className="cat">Growth</span>
               <h2>Why your best customers come from replies, not ads.</h2>
               <p>
-                The sellers growing fastest on WhatsApp aren&apos;t running
-                ads. They&apos;re getting forwarded. Here&apos;s how to make your
+                The sellers growing fastest on WhatsApp aren&apos;t running ads.
+                They&apos;re getting forwarded. Here&apos;s how to make your
                 checkout worth sharing with a friend.
               </p>
               <div className="featured-meta">
@@ -202,7 +211,7 @@ export default function QoraBlog() {
       <section className="section" style={{ paddingTop: 0 }}>
         <div className="wrap">
           <div className="post-list">
-            {filteredPosts.map((post) => (
+            {filteredPosts.map(post => (
               <a
                 className="post-row"
                 href={`/blog/${post.slug}`}
@@ -258,7 +267,7 @@ export default function QoraBlog() {
                     type="email"
                     placeholder="you@business.com"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={e => setEmail(e.target.value)}
                     required
                   />
                   <button type="submit">
