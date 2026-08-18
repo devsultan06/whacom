@@ -2,34 +2,43 @@ import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import path from 'path';
 import healthRouter from './routes/health.js';
 import invoiceRouter from './routes/invoiceRoutes.js';
-import whatsappRouter from './routes/whatsappRoutes.js';
+import twilioRouter from './routes/twilioRoutes.js';
 
 const app: Express = express();
 
 // Middleware
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: false, // Allow public static PDF downloads
+  })
+);
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve static PDF invoices and logos publicly
+app.use('/invoices', express.static(path.join(process.cwd(), 'public', 'invoices')));
+app.use('/logos', express.static(path.join(process.cwd(), 'public', 'logos')));
+
 // Routes
 app.use('/', healthRouter);
 app.use('/api/v1/invoices', invoiceRouter);
-app.use('/api/v1/whatsapp', whatsappRouter);
+app.use('/api/v1/twilio', twilioRouter);
 
 // Root Endpoint
 app.get('/api', (_req: Request, res: Response) => {
   res.json({
-    name: 'Whacom Invoice Engine API',
+    name: 'Qora WhatsApp Commerce OS API',
     version: '1.0.0',
     endpoints: {
       health: 'GET /health',
       parseInvoice: 'POST /api/v1/invoices/parse',
       generatePdf: 'POST /api/v1/invoices/pdf',
-      whatsappWebhook: 'GET/POST /api/v1/whatsapp/webhook',
+      twilioWebhook: 'POST /api/v1/twilio/webhook',
     },
   });
 });

@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+model Merchant {
+  id              String         @id @default(cuid())
+  phone           String         @unique // e.g. "whatsapp:+2348031234567"
+  storeName       String?
+  slug            String?        @unique
+  category        String?
+  description     String?
+  logoUrl         String?
+  bankName        String?
+  accountNumber   String?
+  accountName     String?
+  adminPin        String?        // 5-digit unique access code
+  onboardingStep  String         @default("AWAITING_STORE_NAME") // AWAITING_STORE_NAME | AWAITING_CATEGORY | AWAITING_BANK | AWAITING_LOGO | ACTIVE
+  currency        String         @default("NGN")
+  currencySymbol  String         @default("₦")
+  
+  products        Product[]
+  orders          Order[]
+  customers       Customer[]
+  expenses        Expense[]
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model Product {
+  id               String      @id @default(cuid())
+  merchantId       String
+  merchant         Merchant    @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  name             String
+  slug             String?
+  description      String?
+  price            Float
+  costPrice        Float?
+  stock            Int?
+  isUnlimitedStock Boolean     @default(true)
+  isDigital        Boolean     @default(false)
+  digitalFileUrl   String?     // Download or access link (Google Drive, Notion, PDF link, etc.)
+  category         String?
+  imageUrl         String?
+  isActive         Boolean     @default(true)
+
+  orderItems       OrderItem[]
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+}
+
+model Order {
+  id            String       @id @default(cuid())
+  orderNumber   String       @unique // e.g. ORD-1048
+  merchantId    String
+  merchant      Merchant     @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  customerId    String?
+  customer      Customer?    @relation(fields: [customerId], references: [id])
+  customerName  String
+  customerPhone String
+  customerEmail String?
+  address       String?
+  totalAmount   Float
+  currency      String       @default("NGN")
+  status        String       @default("PENDING") // PENDING, PAID, DISPATCHED, DELIVERED, CANCELLED
+  paymentMethod String?
+  paymentRef    String?
+
+  items         OrderItem[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id])
+  name        String
+  quantity    Int      @default(1)
+  unitPrice   Float
+  totalPrice  Float
+}
+
+model Customer {
+  id            String    @id @default(cuid())
+  merchantId    String
+  merchant      Merchant  @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  name          String
+  phone         String
+  email         String?
+  totalOrders   Int       @default(0)
+  lifetimeSpend Float     @default(0)
+
+  orders        Order[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([merchantId, phone])
+}
+
+model Expense {
+  id          String    @id @default(cuid())
+  merchantId  String
+  merchant    Merchant  @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  name        String
+  amount      Float
+  category    String?
+  date        DateTime  @default(now())
+  notes       String?
+  createdAt   DateTime  @default(now())
+}

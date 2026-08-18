@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap');
+@import './styles/landing.css';
+@import './styles/auth.css';
+@import './styles/dashboard.css';
+@import './styles/storefront.css';
+@import './styles/blog.css';
+
+:root{
+  --ink:#14150f;
+  --ink-soft:#4a4c42;
+  --ivory:#f7f4ec;
+  --ivory-deep:#efeada;
+  --paper:#ffffff;
+  --emerald:#0c6b48;
+  --emerald-deep:#083f2c;
+  --emerald-tint:#e3ede4;
+  --amber:#e8a33d;
+  --amber-tint:#fbe9cf;
+  --line: rgba(20,21,15,0.12);
+  --line-soft: rgba(20,21,15,0.07);
+  --radius-lg: 28px;
+  --radius-md: 18px;
+  --radius-sm: 10px;
+  --maxw: 1180px;
+  --scroll-bg: #f7f4ec;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--ivory);
+  color:var(--ink);
+  font-family:'Inter',sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;display:block;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 32px;}
+.eyebrow{
+  font-family:'DM Mono',monospace;
+  font-size:12px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--emerald);
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:0 0 18px;
+}
+.eyebrow i{display:none;}
+h1,h2,h3{
+  font-family:'Bricolage Grotesque',sans-serif;
+  margin:0;
+  letter-spacing:-0.01em;
+  color:var(--ink);
+}
+em{font-style:normal;color:var(--emerald);}
+:focus-visible{outline:2px solid var(--emerald);outline-offset:3px;}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+}
