@@ -655,7 +655,6 @@ export default function QoraLanding() {
         <div className="nav">
           <QoraLogo />
           <nav className="nav-links">
-            <a href="/stores">Stores</a>
             <a href="#product">Product</a>
             <a href="#how">How it works</a>
             <a href="#stories">Stories</a>

@@ -252,9 +252,74 @@ export default function StoresDirectory() {
               );
             })}
           </div>
+        ) : stores.length === 0 ? (
+          <div
+            style={{
+              textAlign: "center",
+              padding: "70px 20px",
+              background: "#ffffff",
+              borderRadius: 16,
+              border: "1px solid var(--line)",
+              maxWidth: 520,
+              margin: "0 auto",
+            }}
+          >
+            <div
+              style={{
+                width: 60,
+                height: 60,
+                borderRadius: "50%",
+                background: "rgba(22, 163, 74, 0.08)",
+                color: "var(--emerald)",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: 18,
+              }}
+            >
+              <ShoppingBag size={28} />
+            </div>
+            <h3 style={{ fontSize: 20, fontWeight: 700, margin: "0 0 8px", color: "var(--ink)" }}>
+              Be the First Store on Qora
+            </h3>
+            <p style={{ color: "var(--muted)", fontSize: 14.5, lineHeight: 1.5, margin: "0 0 24px" }}>
+              No merchants have registered yet. Turn your WhatsApp chats into tracked sales in under 60 seconds.
+            </p>
+            <a
+              href={WHATSAPP_BOT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                background: "var(--emerald)",
+                color: "#ffffff",
+                padding: "12px 24px",
+                borderRadius: 10,
+                fontWeight: 600,
+                fontSize: 14,
+                textDecoration: "none",
+              }}
+            >
+              <MessageCircle size={16} /> Create Store on WhatsApp
+            </a>
+          </div>
         ) : (
-          <div className="empty-catalog-box">
-            <p>No stores found matching &ldquo;{search}&rdquo;.</p>
+          <div
+            style={{
+              textAlign: "center",
+              padding: "60px 20px",
+              background: "#ffffff",
+              borderRadius: 16,
+              border: "1px solid var(--line)",
+              maxWidth: 480,
+              margin: "0 auto",
+            }}
+          >
+            <p style={{ margin: "0 0 16px", color: "var(--ink)", fontWeight: 600 }}>
+              No stores found matching &ldquo;{search || selectedCategory}&rdquo;
+            </p>
             <button
               type="button"
               className="btn-add-bag"
@@ -262,8 +327,9 @@ export default function StoresDirectory() {
                 setSearch("");
                 setSelectedCategory("All");
               }}
+              style={{ margin: "0 auto" }}
             >
-              Show All Stores
+              Reset Filters & Show All
             </button>
           </div>
         )}

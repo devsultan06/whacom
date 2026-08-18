@@ -131,7 +131,6 @@ export default function QoraBlog() {
             <a href="/#how">How it works</a>
             <a href="/#stories">Stories</a>
             <a href="/stores">Stores</a>
-
             <a href="/blog">Blog</a>
           </nav>
           <div className="nav-actions">
