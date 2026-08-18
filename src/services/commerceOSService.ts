@@ -88,19 +88,22 @@ export async function handleActiveMerchantMessage(
 
     const pendingOrders = orders.filter((o) => o.status === 'PENDING').length;
 
+    const frontendBase = process.env.FRONTEND_URL || 'http://localhost:3000';
+
     await sendTwilioTextMessage(
       from,
       `*Sales Overview*\n\n` +
       `*Total Paid Revenue:* ${merchant.currencySymbol || '₦'}${totalRevenue.toLocaleString()}\n` +
       `*Pending Orders:* ${pendingOrders}\n` +
       `*Total Recorded Orders:* ${orders.length}\n\n` +
-      `Web Dashboard:\nhttps://qora.app/login`
+      `Web Dashboard:\n${frontendBase}/login`
     );
     return true;
   }
 
   // 3. "Catalog" or "Products" or "View Products"
   if (lowerText === 'catalog' || lowerText === 'view catalog' || lowerText === 'products' || lowerText === 'my products') {
+    const frontendBase = process.env.FRONTEND_URL || 'http://localhost:3000';
     const products = await getProductsByMerchant(merchant.id);
     if (products.length === 0) {
       await sendTwilioTextMessage(
@@ -122,7 +125,7 @@ export async function handleActiveMerchantMessage(
       from,
       `*Your Product Catalog (${products.length} items)*\n\n` +
       `${list}\n\n` +
-      `Store Link:\nhttps://qora.store/${merchant.slug}`
+      `Store Link:\n${frontendBase}/store/${merchant.slug}`
     );
     return true;
   }
@@ -131,6 +134,7 @@ export async function handleActiveMerchantMessage(
   const extracted = await extractProductsFromText(cleanText);
 
   if (extracted.isProduct && extracted.products.length > 0) {
+    const frontendBase = process.env.FRONTEND_URL || 'http://localhost:3000';
     const slugBase = merchant.slug || 'store';
     const addedProducts: string[] = [];
 
@@ -165,7 +169,7 @@ export async function handleActiveMerchantMessage(
 
       const accessText = created.digitalFileUrl ? `\nAccess Link: Saved & Protected` : '';
       const descText = prod.description ? `\nDetails: ${prod.description}` : '';
-      const productLink = `https://qora.store/${merchant.slug}/p/${created.slug}`;
+      const productLink = `${frontendBase}/store/${merchant.slug}/p/${created.slug}`;
 
       addedProducts.push(
         `*${created.name}*\n` +

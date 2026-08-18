@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { useParams } from "wouter";
 import {
   Check,
   CheckCircle2,
@@ -16,16 +17,26 @@ import { WHATSAPP_BOT_URL } from "../const";
 import "../styles/storefront.css";
 
 interface Product {
-  id: number;
+  id: string | number;
   name: string;
   category: string;
   price: number;
-  stock: number;
+  stock: number | null;
+  isUnlimitedStock?: boolean;
+  isDigital?: boolean;
   desc: string;
   image: string;
 }
 
-const products: Product[] = [
+interface StoreMeta {
+  storeName: string;
+  category?: string;
+  logoUrl?: string;
+  phone?: string;
+  currencySymbol?: string;
+}
+
+const defaultProducts: Product[] = [
   {
     id: 1,
     name: "Obsidian Black Sneakers",
@@ -46,60 +57,73 @@ const products: Product[] = [
     image:
       "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=600&h=450&q=80",
   },
-  {
-    id: 3,
-    name: "Relaxed Linen Shirt (Ecru)",
-    category: "Apparel",
-    price: 28500,
-    stock: 14,
-    desc: "Breathable natural linen button-down shirt. Relaxed unisex fit.",
-    image:
-      "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=600&h=450&q=80",
-  },
-  {
-    id: 4,
-    name: "Canvas Belt (Brown)",
-    category: "Accessories",
-    price: 9000,
-    stock: 56,
-    desc: "Solid brass buckle with durable woven strap. Adjustable length.",
-    image:
-      "https://images.unsplash.com/photo-1624222247344-550fb60583dc?auto=format&fit=crop&w=600&h=450&q=80",
-  },
-  {
-    id: 5,
-    name: "Leather Slides",
-    category: "Footwear",
-    price: 38000,
-    stock: 16,
-    desc: "Soft genuine leather upper with ergonomic contoured footbed.",
-    image:
-      "https://images.unsplash.com/photo-1603808033192-082d6919d3e1?auto=format&fit=crop&w=600&h=450&q=80",
-  },
-  {
-    id: 6,
-    name: "Silk Printed Scarf",
-    category: "Accessories",
-    price: 15000,
-    stock: 24,
-    desc: "Pure mulberry silk with classic Lagos geometric pattern.",
-    image:
-      "https://images.unsplash.com/photo-1601924994987-69e26d50dc26?auto=format&fit=crop&w=600&h=450&q=80",
-  },
 ];
 
 const naira = (n: number) => `₦${n.toLocaleString()}`;
 
 export default function Storefront() {
+  const params = useParams<{ slug?: string }>();
+  const currentSlug = params.slug || "sultan-store";
+
+  const [storeMeta, setStoreMeta] = useState<StoreMeta>({
+    storeName: "Sultan Store",
+    category: "Food & Dining",
+    currencySymbol: "₦",
+  });
+  const [productList, setProductList] = useState<Product[]>(defaultProducts);
+  const [loading, setLoading] = useState(true);
+
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [cart, setCart] = useState<{ id: number; qty: number }[]>([]);
+  const [cart, setCart] = useState<{ id: string | number; qty: number }[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [deliveryArea, setDeliveryArea] = useState(
     "Lekki / Victoria Island (₦2,500)"
   );
   const [showBankModal, setShowBankModal] = useState(false);
   const [paidDone, setPaidDone] = useState(false);
+
+  useEffect(() => {
+    async function fetchStore() {
+      try {
+        setLoading(true);
+        const res = await fetch(`http://localhost:3008/api/v1/storefront/${currentSlug}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.store) {
+            setStoreMeta({
+              storeName: data.store.storeName || "My Store",
+              category: data.store.category || "Retail",
+              logoUrl: data.store.logoUrl,
+              phone: data.store.phone,
+              currencySymbol: data.store.currencySymbol || "₦",
+            });
+
+            if (data.store.products && data.store.products.length > 0) {
+              const mapped: Product[] = data.store.products.map((p: any) => ({
+                id: p.id,
+                name: p.name,
+                category: p.category || data.store.category || "General",
+                price: p.price,
+                stock: p.stock,
+                isUnlimitedStock: p.isUnlimitedStock,
+                isDigital: p.isDigital,
+                desc: p.description || "",
+                image: p.imageUrl || "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=600&h=450&q=80",
+              }));
+              setProductList(mapped);
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Could not connect to backend API, using cached data.", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchStore();
+  }, [currentSlug]);
 
   const deliveryFee = deliveryArea.includes("2,500")
     ? 2500
@@ -110,7 +134,7 @@ export default function Storefront() {
         : 5000;
 
   const filtered = useMemo(() => {
-    return products.filter(p => {
+    return productList.filter(p => {
       const matchCat =
         selectedCategory === "All" || p.category === selectedCategory;
       const matchSearch =
@@ -118,11 +142,11 @@ export default function Storefront() {
         p.category.toLowerCase().includes(search.toLowerCase());
       return matchCat && matchSearch;
     });
-  }, [search, selectedCategory]);
+  }, [productList, search, selectedCategory]);
 
   const cartItems = cart
     .map(c => {
-      const p = products.find(prod => prod.id === c.id);
+      const p = productList.find(prod => prod.id === c.id);
       return p ? { ...p, qty: c.qty } : null;
     })
     .filter(Boolean) as (Product & { qty: number })[];
@@ -134,7 +158,7 @@ export default function Storefront() {
   const total = subtotal > 0 ? subtotal + deliveryFee : 0;
   const totalCount = cart.reduce((acc, item) => acc + item.qty, 0);
 
-  const addToCart = (id: number) => {
+  const addToCart = (id: string | number) => {
     setCart(prev => {
       const exists = prev.find(item => item.id === id);
       if (exists) {
@@ -147,7 +171,7 @@ export default function Storefront() {
     setCartOpen(true);
   };
 
-  const updateQty = (id: number, delta: number) => {
+  const updateQty = (id: string | number, delta: number) => {
     setCart(prev =>
       prev
         .map(item =>
@@ -163,13 +187,18 @@ export default function Storefront() {
       .map(i => `• ${i.name} (Qty: ${i.qty}) - ${naira(i.price * i.qty)}`)
       .join("%0A");
 
-    const msg = `Hello Sultan Store! 👋%0AI would like to order:%0A%0A${lines}%0A%0ASubtotal: ${naira(
+    const msg = `Hello ${storeMeta.storeName}! 👋%0AI would like to order:%0A%0A${lines}%0A%0ASubtotal: ${naira(
       subtotal
     )}%0ADelivery (${deliveryArea}): ${naira(deliveryFee)}%0ATotal Amount: ${naira(
       total
     )}%0A%0APlease confirm my order. Thank you!`;
 
-    window.open(`https://wa.me/?text=${msg}`, "_blank");
+    const phoneDigits = storeMeta.phone?.replace(/\D/g, "") || "";
+    const waUrl = phoneDigits
+      ? `https://wa.me/${phoneDigits}?text=${msg}`
+      : `https://wa.me/?text=${msg}`;
+
+    window.open(waUrl, "_blank");
   };
 
   return (
@@ -178,12 +207,21 @@ export default function Storefront() {
       <header className="store-simple-nav">
         <div className="nav-simple-inner">
           <div className="store-brand-left">
-            <a href="/store/sultan" className="store-brand-name">
-              Sultan Store
-            </a>
-            <span className="store-location-tag">
-              Lekki, Lagos · WhatsApp Online
-            </span>
+            {storeMeta.logoUrl ? (
+              <img
+                src={storeMeta.logoUrl}
+                alt={storeMeta.storeName}
+                className="store-logo-img"
+              />
+            ) : null}
+            <div className="store-brand-meta">
+              <a href={`/store/${currentSlug}`} className="store-brand-name">
+                {storeMeta.storeName}
+              </a>
+              <span className="store-location-tag">
+                {storeMeta.category || "Online Store"} · WhatsApp Verified
+              </span>
+            </div>
           </div>
 
           <div className="nav-right-actions">
@@ -514,9 +552,9 @@ export default function Storefront() {
             </div>
           </a>
           <p className="footer-sub-text">
-            © 2026 Sultan Store · Orders & Delivery fulfilled on WhatsApp
+            © 2026 {storeMeta.storeName} · Orders & Delivery fulfilled on WhatsApp
           </p>
-        </div>
+        </div>  
       </footer>
     </div>
   );

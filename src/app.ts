@@ -6,6 +6,7 @@ import path from 'path';
 import healthRouter from './routes/health.js';
 import invoiceRouter from './routes/invoiceRoutes.js';
 import twilioRouter from './routes/twilioRoutes.js';
+import storeRouter from './routes/storeRoutes.js';
 
 const app: Express = express();
 
@@ -28,6 +29,7 @@ app.use('/logos', express.static(path.join(process.cwd(), 'public', 'logos')));
 app.use('/', healthRouter);
 app.use('/api/v1/invoices', invoiceRouter);
 app.use('/api/v1/twilio', twilioRouter);
+app.use('/api/v1/storefront', storeRouter);
 
 // Root Endpoint
 app.get('/api', (_req: Request, res: Response) => {

@@ -256,15 +256,16 @@ export async function handleOnboardingMessage(
         onboardingStep: 'ACTIVE',
       });
 
-      const storeUrl = `https://qora.store/${slug}`;
-      const loginUrl = `https://qora.app/login`;
+      const frontendBase = process.env.FRONTEND_URL || 'http://localhost:3000';
+      const storeUrl = `${frontendBase}/store/${slug}`;
+      const loginUrl = `${frontendBase}/login`;
 
       await sendTwilioTextMessage(
         from,
         `🎉 *Your store is live!*\n\n` +
         `*Storefront Link:*\n${storeUrl}\n\n` +
         `*Admin Login PIN:*\n*${adminPin}*\n\n` +
-        `*Web Dashboard:*\n${loginUrl}\n(Login with phone number + PIN: ${adminPin})`
+        `*Web Dashboard:*\n${loginUrl}\n(Login with code: ${adminPin})`
       );
 
       await sendTwilioInteractiveTemplate(from, TWILIO_TEMPLATES.QUICK_ACTIONS);
