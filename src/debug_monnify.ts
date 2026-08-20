@@ -1,19 +1,14 @@
 import 'dotenv/config';
-import { initializeMonnifyTransaction } from './services/monnifyService.js';
+import { validateBankAccount } from './services/monnifyService.js';
 
 async function test() {
-  try {
-    const res = await initializeMonnifyTransaction({
-      amount: 5000,
-      customerName: 'Sultan Tester',
-      customerEmail: 'devsultan@gmail.com',
-      paymentReference: 'TEST_REF_' + Date.now(),
-      paymentDescription: 'Testing order payment',
-    });
-    console.log('Success:', res);
-  } catch (err: any) {
-    console.error('Monnify Error details:', err?.response?.data || err?.message || err);
-  }
+  console.log('1. Testing Valid OPay account (7026018862)...');
+  const validRes = await validateBankAccount('7026018862', 'OPay');
+  console.log('Valid Result:', validRes);
+
+  console.log('\n2. Testing Invalid account (0000000000)...');
+  const invalidRes = await validateBankAccount('0000000000', 'OPay');
+  console.log('Invalid Result:', invalidRes);
 }
 
 test().then(() => process.exit(0));

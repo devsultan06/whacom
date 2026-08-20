@@ -211,24 +211,46 @@ export async function handleOnboardingMessage(
     }
 
     case 'AWAITING_ACCOUNT_NUMBER': {
+      const isBankSwitch = !/\d{5,}/.test(cleanText) && (
+        /bank|opay|palmpay|kuda|moniepoint|gtb|access|zenith|first|uba|fidelity|stanbic|sterling|wema/i.test(cleanText)
+      );
+
+      if (isBankSwitch) {
+        const newBank = cleanText;
+        await updateMerchant(from, { bankName: newBank });
+        await sendTwilioTextMessage(
+          from,
+          `Bank updated to *${newBank}*.\n\nPlease enter your 10-digit account number:`
+        );
+        return true;
+      }
+
       const match = cleanText.match(/\b\d{10}\b/);
       const accountNumber = match ? match[0] : (cleanText.replace(/\D/g, '').length === 10 ? cleanText.replace(/\D/g, '') : null);
 
       if (!accountNumber) {
         await sendTwilioTextMessage(
           from,
-          `Please enter a valid 10-digit account number:\n(e.g., 0123456789)`
+          `⚠️ Please enter a valid 10-digit account number for *${merchant.bankName || 'your bank'}*:\n(e.g., 7026018862)`
         );
         return true;
       }
 
       // Verify account with Monnify
-      const bankName = merchant.bankName || 'GTBank';
+      const bankName = merchant.bankName || 'OPay';
       const validation = await validateBankAccount(accountNumber, bankName);
 
-      const accountName = validation.isValid && validation.accountName
-        ? validation.accountName
-        : undefined;
+      if (!validation.isValid || !validation.accountName) {
+        await sendTwilioTextMessage(
+          from,
+          `⚠️ *Account Verification Failed*\n\n` +
+          `Could not verify account *${accountNumber}* on *${bankName}*.\n\n` +
+          `Please check and re-enter your 10-digit account number, or send another bank name:`
+        );
+        return true;
+      }
+
+      const accountName = validation.accountName;
 
       await updateMerchant(from, {
         accountNumber,
@@ -236,17 +258,12 @@ export async function handleOnboardingMessage(
         onboardingStep: 'AWAITING_LOGO',
       });
 
-      if (accountName) {
-        await sendTwilioTextMessage(
-          from,
-          `Account Verified: *${accountName}*\nBank: *${bankName}*\nAccount Number: *${accountNumber}*`
-        );
-      } else {
-        await sendTwilioTextMessage(
-          from,
-          `Settlement Account Saved: *${bankName} (${accountNumber})*`
-        );
-      }
+      await sendTwilioTextMessage(
+        from,
+        `✅ *Account Verified: ${accountName}*\n` +
+        `Bank: *${bankName}*\n` +
+        `Account Number: *${accountNumber}*`
+      );
 
       await sendTwilioInteractiveTemplate(from, TWILIO_TEMPLATES.SKIP_LOGO_BUTTON);
       return true;
