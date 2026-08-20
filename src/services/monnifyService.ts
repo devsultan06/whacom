@@ -142,3 +142,50 @@ export async function validateBankAccount(
     };
   }
 }
+
+export async function initializeMonnifyTransaction(params: {
+  amount: number;
+  customerName: string;
+  customerEmail: string;
+  paymentReference: string;
+  paymentDescription: string;
+  redirectUrl?: string;
+}) {
+  const token = await getMonnifyAccessToken();
+  const contractCode = process.env.MONNIFY_CONTRACT_CODE || process.env.MONNIFY_WALLET_ACCOUNT || '6975655381';
+
+  const payload = {
+    amount: params.amount,
+    customerName: params.customerName,
+    customerEmail: params.customerEmail,
+    paymentReference: params.paymentReference,
+    paymentDescription: params.paymentDescription,
+    currencyCode: 'NGN',
+    contractCode: contractCode,
+    redirectUrl: params.redirectUrl || 'http://localhost:3000',
+    paymentMethods: ['CARD', 'ACCOUNT_TRANSFER', 'USSD'],
+  };
+
+  const response = await axios.post(
+    `${MONNIFY_BASE_URL}/api/v1/merchant/transactions/init-transaction`,
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (response.data?.requestSuccessful && response.data?.responseBody) {
+    return {
+      success: true,
+      transactionReference: response.data.responseBody.transactionReference,
+      paymentReference: response.data.responseBody.paymentReference,
+      checkoutUrl: response.data.responseBody.checkoutUrl,
+      apiKey: process.env.MONNIFY_API_KEY,
+      contractCode: contractCode,
+    };
+  }
+
+  throw new Error(response.data?.responseMessage || 'Failed to initialize Monnify transaction');
+}

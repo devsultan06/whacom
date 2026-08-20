@@ -31,8 +31,13 @@ interface Product {
 interface StoreMeta {
   storeName: string;
   category?: string;
+  location?: string;
+  deliveryZones?: { area: string; fee: number }[];
   logoUrl?: string;
   phone?: string;
+  bankName?: string;
+  accountNumber?: string;
+  accountName?: string;
   currencySymbol?: string;
 }
 
@@ -70,23 +75,25 @@ export default function Storefront() {
     category: "Food & Dining",
     currencySymbol: "₦",
   });
-  const [productList, setProductList] = useState<Product[]>(defaultProducts);
+  const [productList, setProductList] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [cart, setCart] = useState<{ id: string | number; qty: number }[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
-  const [deliveryArea, setDeliveryArea] = useState(
-    "Lekki / Victoria Island (₦2,500)"
-  );
+  const [selectedZoneIndex, setSelectedZoneIndex] = useState(0);
   const [showBankModal, setShowBankModal] = useState(false);
+  const [copiedBank, setCopiedBank] = useState(false);
+  const [onlinePaying, setOnlinePaying] = useState(false);
   const [paidDone, setPaidDone] = useState(false);
 
   useEffect(() => {
     async function fetchStore() {
       try {
         setLoading(true);
+        setNotFound(false);
         const res = await fetch(`http://localhost:3008/api/v1/storefront/${currentSlug}`);
         if (res.ok) {
           const data = await res.json();
@@ -94,8 +101,13 @@ export default function Storefront() {
             setStoreMeta({
               storeName: data.store.storeName || "My Store",
               category: data.store.category || "Retail",
+              location: data.store.location,
+              deliveryZones: data.store.deliveryZones,
               logoUrl: data.store.logoUrl,
               phone: data.store.phone,
+              bankName: data.store.bankName,
+              accountNumber: data.store.accountNumber,
+              accountName: data.store.accountName,
               currencySymbol: data.store.currencySymbol || "₦",
             });
 
@@ -112,11 +124,16 @@ export default function Storefront() {
                 image: p.imageUrl || "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=600&h=450&q=80",
               }));
               setProductList(mapped);
+            } else {
+              setProductList([]);
             }
+            return;
           }
         }
-      } catch (err) {
-        console.warn("Could not connect to backend API, using cached data.", err);
+        setNotFound(true);
+      } catch (e) {
+        console.error("Store fetch error:", e);
+        setNotFound(true);
       } finally {
         setLoading(false);
       }
@@ -125,13 +142,20 @@ export default function Storefront() {
     fetchStore();
   }, [currentSlug]);
 
-  const deliveryFee = deliveryArea.includes("2,500")
-    ? 2500
-    : deliveryArea.includes("3,000")
-      ? 3000
-      : deliveryArea.includes("4,500")
-        ? 4500
-        : 5000;
+  const activeDeliveryZones = useMemo(() => {
+    if (Array.isArray(storeMeta.deliveryZones) && storeMeta.deliveryZones.length > 0) {
+      return storeMeta.deliveryZones;
+    }
+    return [
+      { area: "Standard Delivery", fee: 2500 },
+      { area: "Express / Interstate Shipping", fee: 4500 },
+      { area: "Store Pickup", fee: 0 },
+    ];
+  }, [storeMeta.deliveryZones]);
+
+  const currentZone = activeDeliveryZones[selectedZoneIndex] || activeDeliveryZones[0] || { area: "Standard Delivery", fee: 2500 };
+  const deliveryArea = currentZone.area;
+  const deliveryFee = currentZone.fee;
 
   const filtered = useMemo(() => {
     return productList.filter(p => {
@@ -181,8 +205,44 @@ export default function Storefront() {
     );
   };
 
-  const handleWhatsAppCheckout = () => {
-    if (cartItems.length === 0) return;
+  const [ordering, setOrdering] = useState(false);
+
+  const handleWhatsAppCheckout = async () => {
+    if (cartItems.length === 0 || ordering) return;
+    setOrdering(true);
+
+    try {
+      const res = await fetch(`http://localhost:3008/api/v1/storefront/${currentSlug}/orders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: cartItems.map(i => ({
+            productId: typeof i.id === "string" ? i.id : undefined,
+            name: i.name,
+            price: i.price,
+            quantity: i.qty,
+            isDigital: i.isDigital,
+          })),
+          deliveryArea,
+          deliveryFee,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.whatsappUrl) {
+          window.open(data.whatsappUrl, "_blank");
+          setOrdering(false);
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn("Could not create tracked order, falling back to direct WhatsApp", err);
+    } finally {
+      setOrdering(false);
+    }
+
+    // Fallback if offline
     const lines = cartItems
       .map(i => `• ${i.name} (Qty: ${i.qty}) - ${naira(i.price * i.qty)}`)
       .join("%0A");
@@ -199,6 +259,190 @@ export default function Storefront() {
       : `https://wa.me/?text=${msg}`;
 
     window.open(waUrl, "_blank");
+  };
+
+  if (!loading && notFound) {
+    return (
+      <div className="store-simple-root" style={{ minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: 24, textAlign: "center" }}>
+        <div style={{ maxWidth: 460, background: "#ffffff", padding: 40, borderRadius: 16, border: "1px solid var(--line)", boxShadow: "0 2px 10px rgba(0,0,0,0.03)" }}>
+          <div style={{ width: 56, height: 56, borderRadius: "50%", background: "rgba(239, 68, 68, 0.1)", color: "#ef4444", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+            <ShoppingBag size={26} />
+          </div>
+          <h2 style={{ fontSize: 22, fontWeight: 700, margin: "0 0 8px", color: "var(--ink)" }}>
+            Store Not Found
+          </h2>
+          <p style={{ color: "var(--muted)", fontSize: 14.5, margin: "0 0 24px" }}>
+            The store <strong style={{ color: "var(--ink)" }}>&ldquo;{currentSlug}&rdquo;</strong> does not exist or has not activated their link yet.
+          </p>
+          <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+            <a href="/stores" className="btn-add-bag" style={{ textDecoration: "none" }}>
+              Explore Active Stores
+            </a>
+            <a href="/" className="btn-chat-wa" style={{ textDecoration: "none" }}>
+              Go Home
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const handleMonnifyOnlineCheckout = async () => {
+    if (cartItems.length === 0 || onlinePaying) return;
+    setOnlinePaying(true);
+
+    try {
+      // 1. Create tracked retail order in DB
+      const orderRes = await fetch(`http://localhost:3008/api/v1/storefront/${currentSlug}/orders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: cartItems.map(i => ({
+            productId: typeof i.id === "string" ? i.id : undefined,
+            name: i.name,
+            price: i.price,
+            quantity: i.qty,
+            isDigital: i.isDigital,
+          })),
+          deliveryArea,
+          deliveryFee,
+          paymentChannel: 'MONNIFY_ONLINE',
+        }),
+      });
+
+      if (!orderRes.ok) {
+        throw new Error('Failed to create order');
+      }
+
+      const orderData = await orderRes.json();
+
+      // 2. Initialize Monnify transaction
+      const payRes = await fetch('http://localhost:3008/api/v1/payments/initialize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderNumber: orderData.orderNumber,
+        }),
+      });
+
+      const payData = await payRes.json();
+
+      if (!payRes.ok || !payData.success) {
+        throw new Error(payData.error || 'Payment initialization failed');
+      }
+
+      // Use the verified Monnify server checkout URL
+      if (payData.checkoutUrl) {
+        window.location.href = payData.checkoutUrl;
+        return;
+      }
+
+      // Check if Monnify SDK is loaded as fallback
+      const monnify = (window as any).MonnifySDK;
+      if (monnify && payData.apiKey && payData.contractCode) {
+        monnify.initialize({
+          amount: orderData.totalAmount || total,
+          currency: "NGN",
+          reference: payData.paymentReference,
+          customerName: "Store Customer",
+          customerEmail: `order_${orderData.orderNumber.toLowerCase()}@qora.store`,
+          apiKey: payData.apiKey,
+          contractCode: payData.contractCode,
+          paymentDescription: `Order #${orderData.orderNumber} at ${storeMeta.storeName}`,
+          isTestMode: true,
+          onComplete: function (response: any) {
+            console.log("[Monnify SDK Success]:", response);
+            setCart([]);
+            setCartOpen(false);
+            alert(`🎉 Payment Successful! Order #${orderData.orderNumber} is confirmed.`);
+          },
+          onClose: function () {
+            console.log("[Monnify SDK Closed]");
+          },
+        });
+        return;
+      }
+    } catch (err: any) {
+      console.error('[Monnify Checkout Error]:', err);
+      alert(err.message || 'Could not start online payment. Please try Direct Bank Transfer or WhatsApp checkout.');
+    } finally {
+      setOnlinePaying(false);
+    }
+  };
+
+  const copyAccountNumber = () => {
+    if (storeMeta.accountNumber) {
+      navigator.clipboard.writeText(storeMeta.accountNumber);
+      setCopiedBank(true);
+      setTimeout(() => setCopiedBank(false), 2000);
+    }
+  };
+
+  const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
+  const [receiptError, setReceiptError] = useState<string | null>(null);
+
+  const handleReceiptFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setReceiptError(null);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setReceiptPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDirectTransferSubmit = async () => {
+    if (cartItems.length === 0 || ordering) return;
+
+    if (!receiptPreview) {
+      setReceiptError("Please attach your transfer receipt or payment screenshot to continue.");
+      return;
+    }
+    setReceiptError(null);
+    setOrdering(true);
+
+    try {
+      const res = await fetch(`http://localhost:3008/api/v1/storefront/${currentSlug}/orders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: cartItems.map(i => ({
+            productId: typeof i.id === "string" ? i.id : undefined,
+            name: i.name,
+            price: i.price,
+            quantity: i.qty,
+            isDigital: i.isDigital,
+          })),
+          deliveryArea,
+          deliveryFee,
+          paymentChannel: 'DIRECT_BANK_TRANSFER',
+          receiptImage: receiptPreview,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setPaidDone(true);
+        setTimeout(() => {
+          setShowBankModal(false);
+          setCart([]);
+          setCartOpen(false);
+          setPaidDone(false);
+          setReceiptPreview(null);
+          setReceiptError(null);
+          if (data.whatsappUrl) {
+            window.open(data.whatsappUrl, "_blank");
+          }
+        }, 1200);
+        return;
+      }
+    } catch (err) {
+      console.warn("Could not submit order with receipt", err);
+    } finally {
+      setOrdering(false);
+    }
   };
 
   return (
@@ -219,7 +463,7 @@ export default function Storefront() {
                 {storeMeta.storeName}
               </a>
               <span className="store-location-tag">
-                {storeMeta.category || "Online Store"} · WhatsApp Verified
+                {storeMeta.location ? `📍 ${storeMeta.location} · ` : ""}{storeMeta.category || "Online Store"} · WhatsApp Verified
               </span>
             </div>
           </div>
@@ -293,7 +537,7 @@ export default function Storefront() {
 
               <div className="card-body-content">
                 <div className="card-top-info">
-                  <span className="stock-info">{product.stock} in stock</span>
+                  <span className="stock-info">{product.isDigital ? 'Digital Product' : (product.isUnlimitedStock ? 'In Stock' : `${product.stock} in stock`)}</span>
                 </div>
 
                 <h3>{product.name}</h3>
@@ -310,7 +554,7 @@ export default function Storefront() {
                   </button>
 
                   <a
-                    href={`https://wa.me/?text=Hi%20Sultan%20Store,%20I%20want%20to%20order%20${encodeURIComponent(
+                    href={`https://wa.me/?text=Hi%20${encodeURIComponent(storeMeta.storeName)},%20I%20want%20to%20order%20${encodeURIComponent(
                       product.name
                     )}%20(${naira(product.price)}).`}
                     target="_blank"
@@ -399,19 +643,14 @@ export default function Storefront() {
                   <Truck size={13} /> Delivery Location:
                 </label>
                 <select
-                  value={deliveryArea}
-                  onChange={e => setDeliveryArea(e.target.value)}
+                  value={selectedZoneIndex}
+                  onChange={e => setSelectedZoneIndex(Number(e.target.value))}
                 >
-                  <option value="Lekki / Victoria Island (₦2,500)">
-                    Lagos Island / Lekki (₦2,500)
-                  </option>
-                  <option value="Lagos Mainland (₦3,000)">
-                    Lagos Mainland (₦3,000)
-                  </option>
-                  <option value="Abuja (₦4,500)">Abuja (₦4,500)</option>
-                  <option value="Port Harcourt & Interstate (₦5,000)">
-                    Port Harcourt & Interstate (₦5,000)
-                  </option>
+                  {activeDeliveryZones.map((zone, idx) => (
+                    <option key={idx} value={idx}>
+                      {zone.area} ({zone.fee === 0 ? "Free" : naira(zone.fee)})
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -428,12 +667,24 @@ export default function Storefront() {
                 <strong>{naira(total)}</strong>
               </div>
 
+              {/* CHECKOUT ACTIONS */}
               <button
                 type="button"
                 className="btn-order-wa-primary"
                 onClick={handleWhatsAppCheckout}
+                disabled={ordering}
               >
-                <MessageCircle size={17} /> Send Order on WhatsApp
+                <MessageCircle size={17} /> {ordering ? "Connecting..." : "Send Order on WhatsApp"}
+              </button>
+
+              <button
+                type="button"
+                className="btn-bank-secondary"
+                style={{ background: "#0c6b48", color: "#ffffff", border: "none" }}
+                onClick={handleMonnifyOnlineCheckout}
+                disabled={onlinePaying}
+              >
+                <CreditCard size={15} /> {onlinePaying ? "Opening Monnify..." : "Pay Online (Card / USSD / Monnify)"}
               </button>
 
               <button
@@ -441,7 +692,7 @@ export default function Storefront() {
                 className="btn-bank-secondary"
                 onClick={() => setShowBankModal(true)}
               >
-                <CreditCard size={15} /> Pay via Bank Transfer
+                <CreditCard size={15} /> Direct Bank Transfer
               </button>
             </div>
           </div>
@@ -468,12 +719,12 @@ export default function Storefront() {
         />
       )}
 
-      {/* BANK PAYMENT MODAL */}
+      {/* DIRECT MERCHANT BANK PAYMENT MODAL */}
       {showBankModal && (
         <div className="modal-backdrop" onClick={() => setShowBankModal(false)}>
           <div className="modal-box" onClick={e => e.stopPropagation()}>
             <div className="modal-box-header">
-              <h3>Bank Transfer Details</h3>
+              <h3>Merchant Bank Account</h3>
               <button
                 type="button"
                 className="modal-x"
@@ -485,51 +736,104 @@ export default function Storefront() {
 
             <div className="modal-transfer-body">
               <p className="transfer-instruction">
-                Please transfer <b>{naira(total)}</b> to Sultan Store&apos;s
-                account:
+                Please transfer <b>{naira(total)}</b> directly to <b>{storeMeta.storeName}</b>:
               </p>
 
               <div className="bank-details-card">
                 <div className="detail-line">
-                  <span>Bank:</span>
-                  <strong>GTBank (Guaranty Trust Bank)</strong>
+                  <span>Bank</span>
+                  <strong>{storeMeta.bankName || "Verified Nigerian Bank"}</strong>
                 </div>
                 <div className="detail-line">
-                  <span>Account Number:</span>
-                  <strong className="font-mono">0123456789</strong>
+                  <span>Account Number</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <strong className="font-mono" style={{ fontSize: 15 }}>{storeMeta.accountNumber || "Awaiting Setup"}</strong>
+                    {storeMeta.accountNumber && (
+                      <button
+                        type="button"
+                        onClick={copyAccountNumber}
+                        style={{
+                          background: "rgba(22, 163, 74, 0.1)",
+                          color: "var(--emerald)",
+                          border: "1px solid var(--emerald)",
+                          borderRadius: 6,
+                          padding: "3px 8px",
+                          fontSize: 11.5,
+                          fontWeight: 600,
+                          cursor: "pointer",
+                        }}
+                      >
+                        {copiedBank ? "Copied!" : "Copy"}
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <div className="detail-line">
-                  <span>Account Name:</span>
-                  <strong>SULTAN STORE ENTERPRISES</strong>
+                  <span>Account Name</span>
+                  <strong>{storeMeta.accountName || storeMeta.storeName}</strong>
                 </div>
+              </div>
+
+              {/* RECEIPT UPLOAD BOX */}
+              <div className="receipt-upload-section">
+                <label className="receipt-label">
+                  Attach Transfer Receipt / Screenshot <span style={{ color: "#ef4444", fontWeight: 700 }}>* (Required)</span>
+                </label>
+                {receiptPreview ? (
+                  <div className="receipt-preview-wrap">
+                    <img src={receiptPreview} alt="Receipt Preview" className="receipt-preview-img" />
+                    <span style={{ fontSize: 12.5, color: "var(--ink)", fontWeight: 600 }}>Receipt Attached</span>
+                    <button
+                      type="button"
+                      className="receipt-remove-btn"
+                      onClick={() => setReceiptPreview(null)}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <label
+                    className="receipt-dropzone"
+                    style={{
+                      borderColor: receiptError ? "#ef4444" : undefined,
+                      background: receiptError ? "rgba(239, 68, 68, 0.04)" : undefined,
+                    }}
+                  >
+                    <input
+                      type="file"
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      onChange={handleReceiptFile}
+                    />
+                    <span className="receipt-dropzone-text" style={{ color: receiptError ? "#dc2626" : undefined, fontWeight: receiptError ? 600 : 400 }}>
+                      📷 Tap to upload payment screenshot
+                    </span>
+                    <span className="receipt-dropzone-sub">PNG, JPG or JPEG from your bank app</span>
+                  </label>
+                )}
+                {receiptError && (
+                  <p style={{ color: "#ef4444", fontSize: 12, marginTop: 6, fontWeight: 500, margin: "6px 0 0" }}>
+                    ⚠️ {receiptError}
+                  </p>
+                )}
               </div>
 
               {paidDone ? (
                 <div className="payment-confirmed-banner">
                   <CheckCircle2 size={20} className="text-emerald" />
                   <div>
-                    <strong>Transfer Notification Sent!</strong>
-                    <p>We will confirm your order on WhatsApp shortly.</p>
+                    <strong>Order Submitted!</strong>
+                    <p>Opening WhatsApp to send your order & receipt...</p>
                   </div>
                 </div>
               ) : (
                 <button
                   type="button"
                   className="header-btn-add full-btn"
-                  onClick={() => {
-                    setPaidDone(true);
-                    setTimeout(() => {
-                      setShowBankModal(false);
-                      setCart([]);
-                      setCartOpen(false);
-                      setPaidDone(false);
-                      alert(
-                        "Thank you! Your transfer notification has been submitted."
-                      );
-                    }, 2000);
-                  }}
+                  onClick={handleDirectTransferSubmit}
+                  disabled={ordering}
                 >
-                  <Check size={16} /> I Have Transferred {naira(total)}
+                  <Check size={16} /> {ordering ? "Submitting..." : `I Have Sent ${naira(total)}`}
                 </button>
               )}
             </div>

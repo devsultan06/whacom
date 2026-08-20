@@ -5,6 +5,8 @@ export interface CreateMerchantInput {
   storeName?: string;
   slug?: string;
   category?: string;
+  location?: string;
+  deliveryZones?: any;
   bankName?: string;
   accountNumber?: string;
   accountName?: string;

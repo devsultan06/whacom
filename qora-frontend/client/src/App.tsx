@@ -10,6 +10,7 @@ import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 import StoresDirectory from "./pages/StoresDirectory";
 import Storefront from "./pages/Storefront";
+import OrderCheckout from "./pages/OrderCheckout";
 
 function Router() {
   return (
@@ -24,6 +25,7 @@ function Router() {
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/store/:slug" component={Storefront} />
       <Route path="/store/:slug/p/:productSlug" component={Storefront} />
+      <Route path="/pay/:orderNumber" component={OrderCheckout} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

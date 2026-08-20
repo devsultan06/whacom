@@ -97,3 +97,18 @@ export async function uploadProductImageToCloudinary(
   });
 }
 
+export async function uploadReceiptToCloudinary(
+  base64OrUrl: string,
+  orderNumber: string
+): Promise<string> {
+  const folder = 'qora/receipts';
+  const publicId = `${orderNumber}_receipt_${Date.now()}`;
+
+  const result = await cloudinary.uploader.upload(base64OrUrl, {
+    folder,
+    public_id: publicId,
+    resource_type: 'image',
+  });
+
+  return result.secure_url;
+}

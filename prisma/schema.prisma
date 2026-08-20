@@ -20,7 +20,9 @@ model Merchant {
   accountNumber   String?
   accountName     String?
   adminPin        String?        // 5-digit unique access code
-  onboardingStep  String         @default("AWAITING_STORE_NAME") // AWAITING_STORE_NAME | AWAITING_CATEGORY | AWAITING_BANK | AWAITING_LOGO | ACTIVE
+  onboardingStep  String         @default("AWAITING_STORE_NAME") // AWAITING_STORE_NAME | AWAITING_CATEGORY | AWAITING_LOCATION | AWAITING_BANK | AWAITING_LOGO | ACTIVE
+  location        String?        // e.g. "Lekki, Lagos" or "Wuse 2, Abuja"
+  deliveryZones   Json?          // Array of { area: string, fee: number }
   currency        String         @default("NGN")
   currencySymbol  String         @default("₦")
   
@@ -56,37 +58,48 @@ model Product {
 }
 
 model Order {
-  id            String       @id @default(cuid())
-  orderNumber   String       @unique // e.g. ORD-1048
-  merchantId    String
-  merchant      Merchant     @relation(fields: [merchantId], references: [id], onDelete: Cascade)
-  customerId    String?
-  customer      Customer?    @relation(fields: [customerId], references: [id])
-  customerName  String
-  customerPhone String
-  customerEmail String?
-  address       String?
-  totalAmount   Float
-  currency      String       @default("NGN")
-  status        String       @default("PENDING") // PENDING, PAID, DISPATCHED, DELIVERED, CANCELLED
-  paymentMethod String?
-  paymentRef    String?
+  id                    String       @id @default(cuid())
+  orderNumber           String       @unique // e.g. ORD-1048
+  merchantId            String
+  merchant              Merchant     @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  customerId            String?
+  customer              Customer?    @relation(fields: [customerId], references: [id])
+  customerName          String?
+  customerPhone         String?
+  customerEmail         String?
+  deliveryAddress       String?
+  deliveryArea          String?
+  deliveryFee           Float        @default(0)
+  itemsTotal            Float        @default(0)
+  discountAmount        Float        @default(0)
+  totalAmount           Float        // Final negotiated or paid amount
+  currency              String       @default("NGN")
+  status                String       @default("PENDING_WHATSAPP") // PENDING_WHATSAPP, PENDING_PAYMENT, PAID, CANCELLED, REFUNDED
+  paymentChannel        String?      @default("DIRECT_BANK_TRANSFER") // DIRECT_BANK_TRANSFER, MONNIFY_ONLINE, CASH_ON_DELIVERY
+  paymentRef            String?      @unique
+  monnifyTransactionRef String?
+  paidAt                DateTime?
 
-  items         OrderItem[]
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  items                 OrderItem[]
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+
+  @@index([merchantId, status])
+  @@index([orderNumber])
 }
 
 model OrderItem {
-  id          String   @id @default(cuid())
-  orderId     String
-  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId   String?
-  product     Product? @relation(fields: [productId], references: [id])
-  name        String
-  quantity    Int      @default(1)
-  unitPrice   Float
-  totalPrice  Float
+  id              String   @id @default(cuid())
+  orderId         String
+  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId       String?
+  product         Product? @relation(fields: [productId], references: [id])
+  name            String
+  quantity        Int      @default(1)
+  unitPrice       Float
+  totalPrice      Float
+  isDigital       Boolean  @default(false)
+  digitalFileUrl  String?
 }
 
 model Customer {

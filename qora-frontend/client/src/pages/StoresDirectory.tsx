@@ -8,6 +8,7 @@ interface StoreItem {
   storeName: string;
   slug: string;
   category?: string;
+  location?: string;
   description?: string;
   logoUrl?: string;
   currencySymbol?: string;
@@ -216,7 +217,7 @@ export default function StoresDirectory() {
                           {s.storeName}
                         </h3>
                         <span style={{ fontSize: 12, color: "var(--emerald)", fontWeight: 500 }}>
-                          {s.category || "Online Store"} · Verified
+                          {s.location ? `📍 ${s.location} · ` : ""}{s.category || "Online Store"} · Verified
                         </span>
                       </div>
                     </div>

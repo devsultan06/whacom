@@ -169,10 +169,28 @@ export async function handleOnboardingMessage(
 
       await updateMerchant(from, {
         category,
+        onboardingStep: 'AWAITING_LOCATION',
+      });
+
+      await sendTwilioTextMessage(
+        from,
+        `Category: *${category}*\n\n` +
+        `📍 *Where is your store/business located?*\n` +
+        `(e.g., *Lekki, Lagos* or *Wuse 2, Abuja* or *Ikeja, Lagos*)\n\n` +
+        `This will be displayed on your store profile so customers know where you are based.`
+      );
+      return true;
+    }
+
+    case 'AWAITING_LOCATION': {
+      const location = cleanText;
+
+      await updateMerchant(from, {
+        location,
         onboardingStep: 'AWAITING_BANK_NAME',
       });
 
-      await sendTwilioTextMessage(from, `Category: *${category}*`);
+      await sendTwilioTextMessage(from, `📍 Location saved: *${location}*`);
       await sendTwilioInteractiveTemplate(from, TWILIO_TEMPLATES.BANK_LIST_PICKER);
       return true;
     }
